@@ -3,8 +3,6 @@
  *  Bovenaan het programma staan de in te stellen variabelen
  */
 
-
-
 #include <FastGPIO.h>
 #define APA102_USE_FAST_GPIO
 
@@ -38,6 +36,8 @@ const uint16_t stepSize = 464;
 const uint8_t stepsColor[3]  = { 1, 0, 0 };
 // Set the number of seconds that should take a single roundtrip of the tip
 const uint32_t cycleTime = 60;
+// Set number of tips
+const uint16_t noTips = 5;
 
 
 /*
@@ -47,6 +47,7 @@ const uint32_t cycleTime = 60;
 rgb_color colors[ledCount];
 uint16_t stepCount;
 const uint32_t dtime = cycleTime*1000 / ledCount;
+const uint32_t dtips = round(ledCount / noTips);
 
 void setup() {
   // put your setup code here, to run once:
@@ -58,17 +59,20 @@ void setup() {
 }
 
 void loop() {  
-  
+  uint16_t index;
   // put your main code here, to run repeatedly:
   stepCount = stepCount % ledCount;
 
-  
   // Update color
   if round((stepCount*100 % stepSize)/100 == 0 )
   {
     initstrip(bckColor);
     visualsteps(stepsColor);
-    colortip(tipColor, stepCount);
+    for(uint16_t i = 0; i < noTips; i++)
+    {
+      index = stepCount + ledCount - i*dtips;
+      colortip(tipColor, index);
+    }
   }
   
   ledStrip.write(colors, ledCount, brightness);
